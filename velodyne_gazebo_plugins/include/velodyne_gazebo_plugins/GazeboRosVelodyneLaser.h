@@ -1,7 +1,7 @@
 /*********************************************************************
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2015-2016, Dataspeed Inc.
+ *  Copyright (c) 2015-2017, Dataspeed Inc.
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -73,7 +73,7 @@ namespace gazebo
     protected: virtual void OnNewLaserScans();
 
     /// \brief Put laser data to the ROS topic
-    private: void putLaserData(common::Time &_updateTime);
+    private: void putLaserData(const common::Time &_updateTime);
 
     private: common::Time last_update_time_;
 
