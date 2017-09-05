@@ -2,7 +2,7 @@
 Changelog for package velodyne_description
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
+0.0.3 (2017-09-05)
 ------------------
 * Increased minimum collision range to prevent self-clipping when in motion
 * Added many URDF parameters, and set example sample count to reasonable values

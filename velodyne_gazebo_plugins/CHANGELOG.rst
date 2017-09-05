@@ -2,8 +2,8 @@
 Changelog for package velodyne_gazebo_plugins
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.0.3 (2017-09-05)
+------------------
 * Fixed ground plane projection by removing interpolation
 * Updated package.xml format to version 2
 * Removed gazebo_plugins dependency
