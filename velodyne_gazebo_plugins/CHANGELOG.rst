@@ -2,6 +2,14 @@
 Changelog for package velodyne_gazebo_plugins
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fixed ground plane projection by removing interpolation
+* Updated package.xml format to version 2
+* Removed gazebo_plugins dependency
+* Gazebo7 integration
+* Contributors: Kevin Hallenbeck, Micho Radovnikovich, Konstantin Sorokin
+
 0.0.2 (2016-02-04)
 ------------------
 * Display laser count when loading gazebo plugin

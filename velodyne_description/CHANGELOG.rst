@@ -2,6 +2,14 @@
 Changelog for package velodyne_description
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+------------------
+* Increased minimum collision range to prevent self-clipping when in motion
+* Added many URDF parameters, and set example sample count to reasonable values
+* Launch rviz with gazebo
+* Updated package.xml format to version 2
+* Contributors: Kevin Hallenbeck
+
 0.0.2 (2016-02-04)
 ------------------
 * Moved M_PI property out of macro to support multiple instances
