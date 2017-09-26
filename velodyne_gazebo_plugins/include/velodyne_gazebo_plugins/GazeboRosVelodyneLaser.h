@@ -44,6 +44,7 @@
 #include <gazebo/physics/physics.hh>
 #include <gazebo/transport/TransportTypes.hh>
 #include <gazebo/msgs/MessageTypes.hh>
+
 #include <gazebo/common/Time.hh>
 #include <gazebo/common/Plugin.hh>
 #include <gazebo/sensors/SensorTypes.hh>
@@ -52,6 +53,7 @@
 #include <boost/bind.hpp>
 #include <boost/thread.hpp>
 #include <boost/thread/mutex.hpp>
+#include <boost/thread/lock_guard.hpp>
 
 namespace gazebo
 {
@@ -69,27 +71,16 @@ namespace gazebo
     /// \param take in SDF root element
     public: void Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf);
 
-    /// \brief Update the controller
-    protected: virtual void OnNewLaserScans();
+    /// \brief Subscribe on-demand
+    private: void ConnectCb();
 
-    /// \brief Put laser data to the ROS topic
-    private: void putLaserData(const common::Time &_updateTime);
-
-    private: common::Time last_update_time_;
-
-    /// \brief Keep track of number of connections
-    private: int laser_connect_count_;
-    private: void laserConnect();
-    private: void laserDisconnect();
-
-    // Pointer to the model
-    private: physics::WorldPtr world_;
-    /// \brief The parent sensor
-    private: sensors::SensorPtr parent_sensor_;
+    /// \brief The parent ray sensor
     private: sensors::RaySensorPtr parent_ray_sensor_;
 
-    /// \brief pointer to ros node
-    private: ros::NodeHandle* rosnode_;
+    /// \brief Pointer to ROS node
+    private: ros::NodeHandle* nh_;
+
+    /// \brief ROS publisher
     private: ros::Publisher pub_;
 
     /// \brief topic name
@@ -117,10 +108,10 @@ namespace gazebo
       return sigma * (sqrt(-2.0 * ::log(U)) * cos(2.0 * M_PI * V)) + mu;
     }
 
-    /// \brief A mutex to lock access to fields that are used in message callbacks
+    /// \brief A mutex to lock access
     private: boost::mutex lock_;
 
-    /// \brief for setting ROS name space
+    /// \brief For setting ROS name space
     private: std::string robot_namespace_;
 
     // Custom Callback Queue
@@ -128,13 +119,14 @@ namespace gazebo
     private: void laserQueueThread();
     private: boost::thread callback_laser_queue_thread_;
 
-    // subscribe to world stats
-    private: transport::NodePtr node_;
-    private: common::Time sim_time_;
-    public: void onStats( const boost::shared_ptr<msgs::WorldStatistics const> &_msg);
+    // Subscribe to gazebo laserscan
+    private: gazebo::transport::NodePtr gazebo_node_;
+    private: gazebo::transport::SubscriberPtr sub_;
+    private: void OnScan(const ConstLaserScanStampedPtr &_msg);
 
   };
 
-}
+} // namespace gazebo
 
 #endif /* GAZEBO_ROS_VELODYNE_LASER_H_ */
+
