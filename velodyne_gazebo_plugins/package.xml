@@ -13,11 +13,11 @@
   <url type="repository">https://bitbucket.org/dataspeedinc/velodyne_simulator</url>
   <url type="bugtracker">https://bitbucket.org/dataspeedinc/velodyne_simulator/issues</url>
 
-  <buildtool_depend>catkin</buildtool_depend>
+  <buildtool_depend>ament_cmake</buildtool_depend>
 
   <depend>roscpp</depend>
   <depend>sensor_msgs</depend>
-  <depend>tf</depend>
+  <depend>tf2</depend>
   <depend>gazebo_ros</depend>
 
   <export>

@@ -13,13 +13,13 @@
   <url type="repository">https://bitbucket.org/dataspeedinc/velodyne_simulator</url>
   <url type="bugtracker">https://bitbucket.org/dataspeedinc/velodyne_simulator/issues</url>
 
-  <buildtool_depend>catkin</buildtool_depend>
+  <buildtool_depend>ament_cmake</buildtool_depend>
 
   <exec_depend>velodyne_description</exec_depend>
   <exec_depend>velodyne_gazebo_plugins</exec_depend>
 
   <export>
-    <metapackage/>
+   <build_type>ament_cmake</build_type>
   </export>
 
 </package>

@@ -41,9 +41,7 @@
 #endif
 
 // Custom Callback Queue
-#include <ros/ros.h>
-#include <ros/callback_queue.h>
-#include <ros/advertise_options.h>
+#include <gazebo_ros/node.hpp>
 
 #include <sdf/Param.hh>
 #include <gazebo/physics/physics.hh>
@@ -64,6 +62,8 @@
 #include <boost/thread.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/lock_guard.hpp>
+
+#include <sensor_msgs/msg/point_cloud2.hpp>
 
 #if GAZEBO_GPU_RAY
 #define GazeboRosVelodyneLaser GazeboRosVelodyneGpuLaser
@@ -93,11 +93,11 @@ namespace gazebo
     /// \brief The parent ray sensor
     private: sensors::RaySensorPtr parent_ray_sensor_;
 
-    /// \brief Pointer to ROS node
-    private: ros::NodeHandle* nh_;
+    private: gazebo_ros::Node::SharedPtr ros_node_;
 
     /// \brief ROS publisher
-    private: ros::Publisher pub_;
+    private: rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr pub_;
+    //private: ros::Publisher pub_;
 
     /// \brief topic name
     private: std::string topic_name_;
@@ -134,18 +134,18 @@ namespace gazebo
     private: std::string robot_namespace_;
 
     // Custom Callback Queue
-    private: ros::CallbackQueue laser_queue_;
-    private: void laserQueueThread();
-    private: boost::thread callback_laser_queue_thread_;
+    //private: ros::CallbackQueue laser_queue_;
+    //private: void laserQueueThread();
+    //private: boost::thread callback_laser_queue_thread_;
 
     // Subscribe to gazebo laserscan
     private: gazebo::transport::NodePtr gazebo_node_;
     private: gazebo::transport::SubscriberPtr sub_;
     private: void OnScan(const ConstLaserScanStampedPtr &_msg);
 
+
   };
 
 } // namespace gazebo
 
 #endif /* GAZEBO_ROS_VELODYNE_LASER_H_ */
-
