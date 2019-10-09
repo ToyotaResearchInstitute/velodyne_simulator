@@ -40,41 +40,22 @@
 #define GAZEBO_GPU_RAY 0
 #endif
 
-// Custom Callback Queue
-#include <gazebo_ros/node.hpp>
-
 #include <sdf/Param.hh>
-#include <gazebo/physics/physics.hh>
-#include <gazebo/transport/TransportTypes.hh>
-#include <gazebo/msgs/MessageTypes.hh>
 
-#include <gazebo/common/Time.hh>
+#include <gazebo/transport/Node.hh>
+
 #include <gazebo/common/Plugin.hh>
+#include <gazebo/msgs/MessageTypes.hh>
 #include <gazebo/sensors/SensorTypes.hh>
-#if GAZEBO_GPU_RAY
-#include <gazebo/plugins/GpuRayPlugin.hh>
-#else
-#include <gazebo/plugins/RayPlugin.hh>
-#endif
-
-#include <boost/algorithm/string/trim.hpp>
-#include <boost/bind.hpp>
-#include <boost/thread.hpp>
-#include <boost/thread/mutex.hpp>
-#include <boost/thread/lock_guard.hpp>
 
 #include <sensor_msgs/msg/point_cloud2.hpp>
 
-#if GAZEBO_GPU_RAY
-#define GazeboRosVelodyneLaser GazeboRosVelodyneGpuLaser
-#define RayPlugin GpuRayPlugin
-#define RaySensorPtr GpuRaySensorPtr
-#endif
+#include <gazebo_ros/node.hpp>
 
 namespace gazebo
 {
 
-  class GazeboRosVelodyneLaser : public RayPlugin
+  class GazeboRosVelodyneLaser : public SensorPlugin
   {
     /// \brief Constructor
     /// \param parent The parent entity, must be a Model or a Sensor
@@ -91,7 +72,7 @@ namespace gazebo
     private: void ConnectCb();
 
     /// \brief The parent ray sensor
-    private: sensors::RaySensorPtr parent_ray_sensor_;
+    private: sensors::SensorPtr parent_ray_sensor_;
 
     private: gazebo_ros::Node::SharedPtr ros_node_;
 
@@ -127,22 +108,13 @@ namespace gazebo
       return sigma * (sqrt(-2.0 * ::log(U)) * cos(2.0 * M_PI * V)) + mu;
     }
 
-    /// \brief A mutex to lock access
-    private: boost::mutex lock_;
-
     /// \brief For setting ROS name space
     private: std::string robot_namespace_;
-
-    // Custom Callback Queue
-    //private: ros::CallbackQueue laser_queue_;
-    //private: void laserQueueThread();
-    //private: boost::thread callback_laser_queue_thread_;
 
     // Subscribe to gazebo laserscan
     private: gazebo::transport::NodePtr gazebo_node_;
     private: gazebo::transport::SubscriberPtr sub_;
     private: void OnScan(const ConstLaserScanStampedPtr &_msg);
-
 
   };
 
