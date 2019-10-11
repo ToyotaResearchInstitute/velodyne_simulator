@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.7.2)
+cmake_minimum_required(VERSION 3.5)
 
 project(velodyne_gazebo_plugins)
 
@@ -20,20 +20,8 @@ find_package(rclcpp REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(tf2 REQUIRED)
 
-include_directories(include
-${gazebo_dev_INCLUDE_DIRS}
-${gazebo_ros_INCLUDE_DIRS}
-${sensor_msgs_INCLUDE_DIRS}
-${tf2_INCLUDE_DIRS}
-)
+include_directories(include)
 link_directories(${gazebo_dev_LIBRARY_DIRS})
-
-if(NOT DEFINED ENV{ROS_DISTRO})
-  message(FATAL_ERROR "ROS_DISTRO is not defined; have you sourced your ROS distro setup.bash?")
-endif()
-string(TOUPPER $ENV{ROS_DISTRO} ROS_DISTRO)
-add_definitions(-DROS_${ROS_DISTRO})
-
 
 add_library(gazebo_ros_velodyne_laser SHARED src/GazeboRosVelodyneLaser.cpp)
 ament_target_dependencies(gazebo_ros_velodyne_laser

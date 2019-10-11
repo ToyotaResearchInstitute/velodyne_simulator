@@ -36,11 +36,6 @@
 
 #include <algorithm>
 
-//#include <sdf/sdf.hh>
-
-//#include <gazebo/common/Exception.hh>
-
-//#include <gazebo/physics/World.hh>
 #include <gazebo/sensors/Sensor.hh>
 
 namespace gazebo
@@ -129,19 +124,11 @@ void GazeboRosVelodyneLaser::Load(sensors::SensorPtr _parent, sdf::ElementPtr _s
       topic_name_, 10);
   }
 
-  // TODO lazy subscribe
-#if GAZEBO_MAJOR_VERSION >= 7
+  // TODO lazy subscribe. Find a way to subscribe to the gazebo topic if there are
+  //      ros subscribers present.
   sub_ = gazebo_node_->Subscribe(parent_ray_sensor_->Topic(), &GazeboRosVelodyneLaser::OnScan, this);
-#else
-  sub_ = gazebo_node_->Subscribe(parent_ray_sensor_->Topic(), &GazeboRosVelodyneLaser::OnScan, this);
-#endif
 
-#if GAZEBO_MAJOR_VERSION >= 7
   RCLCPP_INFO(ros_node_->get_logger(), "Velodyne %slaser plugin ready");
-#else
-  RCLCPP_INFO(ros_node_->get_logger(), "Velodyne %slaser plugin ready");
-#endif
-
   gzdbg << "GazeboRosVelodyneLaser LOADED\n";
 }
 

@@ -78,7 +78,6 @@ namespace gazebo
 
     /// \brief ROS publisher
     private: rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr pub_;
-    //private: ros::Publisher pub_;
 
     /// \brief topic name
     private: std::string topic_name_;

@@ -1,7 +1,5 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="example">
-  <xacro:arg name="gpu" default="false"/>
-  <xacro:property name="gpu" value="$(arg gpu)" />
 
   <!-- Base Footprint -->
   <link name="base_footprint" />
@@ -27,18 +25,18 @@
       <origin xyz="0 0 0"/>
       <mass value="10"/>
       <inertia ixx="3.0" ixy="0.0" ixz="0.0"
-               iyy="3.0" iyz="0.0" 
+               iyy="3.0" iyz="0.0"
                izz="3.0" />
     </inertial>
   </link>
 
   <xacro:include filename="$(find velodyne_description)/urdf/VLP-16.urdf.xacro"/>
-  <VLP-16 parent="base_link" name="velodyne" topic="/velodyne_points" hz="10" samples="440" gpu="${gpu}">
+  <VLP-16 parent="base_link" name="velodyne" topic="/velodyne_points" hz="10" samples="440">
     <origin xyz="0 0 0.4" rpy="0 0 0" />
   </VLP-16>
 
   <xacro:include filename="$(find velodyne_description)/urdf/HDL-32E.urdf.xacro"/>
-  <HDL-32E parent="base_link" name="velodyne2" topic="/velodyne_points2" hz="10" samples="220" gpu="${gpu}">
+  <HDL-32E parent="base_link" name="velodyne2" topic="/velodyne_points2" hz="10" samples="220">
     <origin xyz="0 0 0.6" rpy="0 0 0" />
   </HDL-32E>
 
