@@ -35,11 +35,6 @@
 #ifndef GAZEBO_ROS_VELODYNE_LASER_H_
 #define GAZEBO_ROS_VELODYNE_LASER_H_
 
-// Use the same source code for CPU and GPU plugins
-#ifndef GAZEBO_GPU_RAY
-#define GAZEBO_GPU_RAY 0
-#endif
-
 #include <sdf/Param.hh>
 
 #include <gazebo/transport/Node.hh>

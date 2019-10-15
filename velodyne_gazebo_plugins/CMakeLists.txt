@@ -21,7 +21,6 @@ find_package(sensor_msgs REQUIRED)
 find_package(tf2 REQUIRED)
 
 include_directories(include)
-link_directories(${gazebo_dev_LIBRARY_DIRS})
 
 add_library(gazebo_ros_velodyne_laser SHARED src/GazeboRosVelodyneLaser.cpp)
 ament_target_dependencies(gazebo_ros_velodyne_laser

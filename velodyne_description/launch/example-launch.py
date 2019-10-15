@@ -47,6 +47,7 @@ def read_file(path):
 
 def generate_launch_description():
     output_mode = 'both'
+    gpu = False;
 
     gazebo_dir = os.path.dirname(get_package_share_directory('velodyne_description'))
     world = os.path.join(get_package_share_directory('velodyne_description'),
@@ -56,7 +57,7 @@ def generate_launch_description():
         'urdf')
     xacro_urdf = os.path.join(urdf_dir, 'example.urdf.xacro')
     robot_urdf = os.path.join(urdf_dir, 'example.urdf')
-    xacro_proc = subprocess.Popen("xacro {0}  > {1}".format(xacro_urdf, robot_urdf) ,
+    xacro_proc = subprocess.Popen("xacro {0} gpu:={1}  > {2}".format(xacro_urdf, gpu, robot_urdf) ,
         stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
     xacro_proc.wait()
     assert os.path.exists(robot_urdf)
