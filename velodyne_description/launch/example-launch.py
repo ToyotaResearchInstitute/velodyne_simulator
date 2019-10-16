@@ -81,8 +81,8 @@ def generate_launch_description():
     spawn_entity = launch.actions.ExecuteProcess(
         name='spawn_entity', cmd=['ros2', 'service', 'call', '/spawn_entity', 'gazebo_msgs/SpawnEntity', spawn_entity_message_contents], env=os.environ.copy(), output=output_mode, shell=True, log_cmd=False)
 
-    # PUBLSHIES THE URDF TO /robot_description.
-    # This is a workasround to make rviz get the urdf.
+    # Publishes the URDF to /robot_description.
+    # This is a workaround to make rviz get the urdf.
     urdf_pub_data = urdf_contents.replace('"', '\\"')
     launch_urdf = launch.actions.ExecuteProcess(
         name='launch_urdf', cmd=['ros2', 'topic', 'pub', '-r', '0.1', '/robot_description', 'std_msgs/String', '\'data: "' + urdf_pub_data + '"\''], env=os.environ.copy(), output=output_mode, shell=True, log_cmd=False)
