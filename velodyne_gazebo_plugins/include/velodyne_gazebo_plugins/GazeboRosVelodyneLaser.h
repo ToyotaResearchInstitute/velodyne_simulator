@@ -35,7 +35,12 @@
 #ifndef GAZEBO_ROS_VELODYNE_LASER_H_
 #define GAZEBO_ROS_VELODYNE_LASER_H_
 
+#include <string>
+#include <vector>
+
 #include <sdf/Param.hh>
+
+#include <ignition/math/Angle.hh>
 
 #include <gazebo/transport/Node.hh>
 
@@ -52,6 +57,22 @@ namespace gazebo
 
   class GazeboRosVelodyneLaser : public SensorPlugin
   {
+    struct ScanPattern {
+      struct Sample {
+        Sample() = default;
+
+        Sample(int _index, ignition::math::Angle _angle)
+          : index(_index), angle(_angle)
+        {
+        }
+
+        int index{0};
+        ignition::math::Angle angle{0.0};
+      };
+      std::vector<Sample> horizontal_samples;
+      std::vector<Sample> vertical_samples;
+    };
+
     /// \brief Constructor
     /// \param parent The parent entity, must be a Model or a Sensor
     public: GazeboRosVelodyneLaser();
@@ -63,11 +84,32 @@ namespace gazebo
     /// \param take in SDF root element
     public: void Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf);
 
+    /// \brief Load scan pattern
+    /// \param _parent Parent (gpu) ray sensor
+    /// \param _sdf Root sensor plugin SDF element
+    private: void LoadScanPattern(sensors::SensorPtr _parent, sdf::ElementPtr _sdf);
+
+    /// \brief Sample angle interval evenly
+    /// \param _min_angle Angle interval lower bound
+    /// \param _max_angle Angle interval upper bound
+    /// \param _sample_count Amount of samples to take
+    private: std::vector<ScanPattern::Sample> SampleAngleIntervalEvenly(ignition::math::Angle _min_angle,
+                                                                        ignition::math::Angle _max_angle,
+                                                                        int _sample_count);
+
+    /// \brief Sample angle interval as configured.
+    /// \param _sdf Root SDF element holding configuration
+    /// \param _min_angle Angle interval lower bound
+    /// \param _max_angle Angle interval upper bound
+    /// \param _sample_count Amount of samples to take
+    private: std::vector<ScanPattern::Sample> SampleAngleInterval(sdf::ElementPtr _sdf, ignition::math::Angle _min_angle,
+                                                                  ignition::math::Angle _max_angle, int _sample_count);
+
     /// \brief Subscribe on-demand
     private: void ConnectCb();
 
     /// \brief The parent ray sensor
-    private: sensors::SensorPtr parent_ray_sensor_;
+    private: sensors::SensorPtr parent_sensor_;
 
     private: gazebo_ros::Node::SharedPtr ros_node_;
 
@@ -82,6 +124,9 @@ namespace gazebo
 
     /// \brief the intensity beneath which points will be filtered
     private: double min_intensity_;
+
+    /// \brief the ray casting pattern for this sensor.
+    private: ScanPattern scan_pattern_;
 
     /// \brief Minimum range to publish
     private: double min_range_;
