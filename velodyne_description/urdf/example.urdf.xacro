@@ -38,8 +38,13 @@
   </VLP-16>
 
   <xacro:include filename="$(find velodyne_description)/urdf/HDL-32E.urdf.xacro"/>
-  <HDL-32E parent="base_link" name="velodyne2" topic="/velodyne_points2" hz="10" samples="220" gpu="${gpu}">
+   <HDL-32E parent="base_link" name="velodyne2" topic="/velodyne_points2" hz="10" samples="220" gpu="${gpu}">
     <origin xyz="0 0 0.6" rpy="0 0 0" />
   </HDL-32E>
+
+  <xacro:include filename="$(find velodyne_description)/urdf/VLP-32C.urdf.xacro"/>
+  <VLP-32C parent="base_link" name="velodyne3" topic="/velodyne_points3" hz="10" samples="1200" gpu="${gpu}">
+    <origin xyz="0 0 0.8" rpy="0 0 0" />
+  </VLP-32C>
 
 </robot>
