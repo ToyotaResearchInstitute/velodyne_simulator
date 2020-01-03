@@ -70,7 +70,7 @@
                 <max_angle>${max_angle}</max_angle>
               </horizontal>
               <vertical>
-                <samples>${lasers}</samples>
+                <samples>${2 * lasers}</samples>
                 <resolution>1</resolution>
                 <min_angle>${-25.0*M_PI/180.0}</min_angle>
                 <max_angle>${15.0*M_PI/180.0}</max_angle>
