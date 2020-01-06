@@ -75,11 +75,11 @@ GazeboRosVelodyneLaser::SampleAngleIntervalEvenly(ignition::math::Angle _min_ang
   samples.reserve(_sample_count);
   if (_sample_count > 1) {
     ignition::math::Angle angle_step = (_max_angle - _min_angle) / (_sample_count - 1);
-    for (int i = 0; i < _sample_count; ++i) {
+    for (double i = 0; i < _sample_count; i += 1.) {
       samples.emplace_back(i, angle_step * i + _min_angle);
     }
   } else {
-    samples.emplace_back(0, 0.0);
+    samples.emplace_back(0.0, 0.0);
   }
   return samples;
 }
@@ -120,11 +120,7 @@ GazeboRosVelodyneLaser::SampleAngleInterval(sdf::ElementPtr _sdf,
 }
 
 void GazeboRosVelodyneLaser::LoadScanPattern(sensors::SensorPtr _parent, sdf::ElementPtr _sdf) {
-#if GAZEBO_MAJOR_VERSION >= 7
   sensors::GpuRaySensorPtr parent_gpu_ray_sensor = std::dynamic_pointer_cast<sensors::GpuRaySensor>(_parent);
-#else
-  sensors::GpuRaySensorPtr parent_gpu_ray_sensor = boost::dynamic_pointer_cast<sensors::GpuRaySensor>(_parent);
-#endif
   if (parent_gpu_ray_sensor) {
     if (_sdf->HasElement("scan")) {
       sdf::ElementPtr scan_elem = _sdf->GetElement("scan");
@@ -159,11 +155,7 @@ void GazeboRosVelodyneLaser::LoadScanPattern(sensors::SensorPtr _parent, sdf::El
     return;
   }
 
-#if GAZEBO_MAJOR_VERSION >= 7
   sensors::RaySensorPtr parent_ray_sensor = std::dynamic_pointer_cast<sensors::RaySensor>(_parent);
-#else
-  sensors::RaySensorPtr parent_ray_sensor = boost::dynamic_pointer_cast<sensors::RaySensor>(_parent);
-#endif
 
   if (parent_ray_sensor) {
     if (_sdf->HasElement("scan")) {
@@ -306,17 +298,11 @@ void GazeboRosVelodyneLaser::Load(sensors::SensorPtr _parent, sdf::ElementPtr _s
 
 void GazeboRosVelodyneLaser::OnScan(ConstLaserScanStampedPtr& _msg)
 {
-#if GAZEBO_MAJOR_VERSION >= 7
   const double maxRange = _msg->scan().range_max();
   const double minRange = _msg->scan().range_min();
 
   const int rangeCount = _msg->scan().count();
-#else
-  const double maxRange = _msg->scan().range_max();
-  const double minRange = _msg->scan().range_min();
 
-  const int rangeCount =  _msg->scan().count();
-#endif
   const double MIN_RANGE = std::max(min_range_, minRange);
   const double MAX_RANGE = std::min(max_range_, maxRange);
   const double MIN_INTENSITY = min_intensity_;
@@ -352,22 +338,19 @@ void GazeboRosVelodyneLaser::OnScan(ConstLaserScanStampedPtr& _msg)
                   scan_pattern_.vertical_samples.size() *
                   POINT_STEP);
 
-  using ScanPattern = GazeboRosVelodyneLaser::ScanPattern;
+  size_t j = 0;
   uint8_t *ptr = msg.data.data();
-  for (size_t i = 0; i < scan_pattern_.horizontal_samples.size(); ++i) {
-    const ScanPattern::Sample & hsample = scan_pattern_.horizontal_samples[i];
-
-    for (size_t j = 0; j < scan_pattern_.vertical_samples.size(); ++j) {
-      const ScanPattern::Sample & vsample = scan_pattern_.vertical_samples[j];
-
-      double r = INFINITY;
+  using ScanPattern = GazeboRosVelodyneLaser::ScanPattern;
+  for (const ScanPattern::Sample & vsample : scan_pattern_.vertical_samples) {
+    for (const ScanPattern::Sample & hsample : scan_pattern_.horizontal_samples) {
+      double range = INFINITY;
       double intensity = 0.;
 
       // Interpolate sample range and intensity if need be.
       if (std::rint(hsample.index) == hsample.index &&
           std::rint(vsample.index) == vsample.index) {
         int rindex = hsample.index + vsample.index * rangeCount;
-        r = _msg->scan().ranges(rindex);
+        range = _msg->scan().ranges(rindex);
         intensity = _msg->scan().intensities(rindex);
       } else if (std::rint(hsample.index) == hsample.index) {
         int hindex = hsample.index;
@@ -377,10 +360,10 @@ void GazeboRosVelodyneLaser::OnScan(ConstLaserScanStampedPtr& _msg)
         int rindex0 = hindex + vindex0 * rangeCount;
         int rindex1 = hindex + vindex1 * rangeCount;
 
-        double r0 = _msg->scan().ranges(rindex0);
-        double r1 = _msg->scan().ranges(rindex1);
+        double range0 = _msg->scan().ranges(rindex0);
+        double range1 = _msg->scan().ranges(rindex1);
 
-        r = (vindex1 - vsample.index) * r0 + (vsample.index - vindex0) * r1;
+        range = (vindex1 - vsample.index) * range0 + (vsample.index - vindex0) * range1;
 
         intensity = (_msg->scan().intensities(rindex0) +
                      _msg->scan().intensities(rindex1)) / 2;
@@ -392,10 +375,11 @@ void GazeboRosVelodyneLaser::OnScan(ConstLaserScanStampedPtr& _msg)
         int rindex0 = hindex0 + vindex * rangeCount;
         int rindex1 = hindex1 + vindex * rangeCount;
 
-        double r0 = _msg->scan().ranges(rindex0);
-        double r1 = _msg->scan().ranges(rindex1);
+        double range0 = _msg->scan().ranges(rindex0);
+        double range1 = _msg->scan().ranges(rindex1);
 
-        r = (hindex1 - hsample.index) * r0 + (hsample.index - hindex0) * r1;
+        range = ((hindex1 - hsample.index) * range0 +
+                 (hsample.index - hindex0) * range1);
 
         intensity = (_msg->scan().intensities(rindex0) +
                      _msg->scan().intensities(rindex1)) / 2;
@@ -410,13 +394,13 @@ void GazeboRosVelodyneLaser::OnScan(ConstLaserScanStampedPtr& _msg)
         int rindex10 = hindex1 + vindex0 * rangeCount;
         int rindex11 = hindex1 + vindex1 * rangeCount;
 
-        double r00 = _msg->scan().ranges(rindex00);
-        double r01 = _msg->scan().ranges(rindex01);
-        double r10 = _msg->scan().ranges(rindex10);
-        double r11 = _msg->scan().ranges(rindex11);
+        double range00 = _msg->scan().ranges(rindex00);
+        double range01 = _msg->scan().ranges(rindex01);
+        double range10 = _msg->scan().ranges(rindex10);
+        double range11 = _msg->scan().ranges(rindex11);
 
-        r = ((vindex1 - vsample.index) * ((hindex1 - hsample.index) * r00 + (hsample.index - hindex0) * r10) +
-             (vsample.index - vindex0) * ((hindex1 - hsample.index) * r01 + (hsample.index - hindex0) * r11));
+        range = ((vindex1 - vsample.index) * ((hindex1 - hsample.index) * range00 + (hsample.index - hindex0) * range10) +
+                 (vsample.index - vindex0) * ((hindex1 - hsample.index) * range01 + (hsample.index - hindex0) * range11));
 
         intensity = (_msg->scan().intensities(rindex00) +
                      _msg->scan().intensities(rindex01) +
@@ -425,13 +409,13 @@ void GazeboRosVelodyneLaser::OnScan(ConstLaserScanStampedPtr& _msg)
       }
       // Ignore points that lay outside range bands or optionally, beneath a
       // minimum intensity level.
-      if ((MIN_RANGE >= r) || (r >= MAX_RANGE) || (intensity < MIN_INTENSITY)) {
+      if ((MIN_RANGE >= range) || (range >= MAX_RANGE) || (intensity < MIN_INTENSITY)) {
         continue;
       }
 
       // Noise
       if (gaussian_noise_ != 0.0) {
-        r += gaussianKernel(0,gaussian_noise_);
+        range += gaussianKernel(0,gaussian_noise_);
       }
 
       // Get angles of ray to get xyz for point
@@ -439,23 +423,16 @@ void GazeboRosVelodyneLaser::OnScan(ConstLaserScanStampedPtr& _msg)
       double pAngle = vsample.angle.Radian();
 
       // pAngle is rotated by yAngle:
-      if ((MIN_RANGE < r) && (r < MAX_RANGE)) {
-        *((float*)(ptr + 0)) = r * cos(pAngle) * cos(yAngle);
-        *((float*)(ptr + 4)) = r * cos(pAngle) * sin(yAngle);
-#if GAZEBO_MAJOR_VERSION > 2
-        *((float*)(ptr + 8)) = r * sin(pAngle);
-#else
-        *((float*)(ptr + 8)) = -r * sin(pAngle);
-#endif
+      if ((MIN_RANGE < range) && (range < MAX_RANGE)) {
+        *((float*)(ptr + 0)) = range * cos(pAngle) * cos(yAngle);
+        *((float*)(ptr + 4)) = range * cos(pAngle) * sin(yAngle);
+        *((float*)(ptr + 8)) = range * sin(pAngle);
         *((float*)(ptr + 16)) = intensity;
-#if GAZEBO_MAJOR_VERSION > 2
         *((uint16_t*)(ptr + 20)) = j; // ring
-#else
-        *((uint16_t*)(ptr + 20)) = scan_pattern_.vertical_samples.size() - 1 - j; // ring
-#endif
         ptr += POINT_STEP;
       }
     }
+    j += 1;
   }
 
   // Populate message with number of valid points
