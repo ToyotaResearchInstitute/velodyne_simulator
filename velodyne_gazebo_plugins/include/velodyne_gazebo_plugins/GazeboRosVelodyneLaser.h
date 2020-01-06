@@ -61,12 +61,12 @@ namespace gazebo
       struct Sample {
         Sample() = default;
 
-        Sample(int _index, ignition::math::Angle _angle)
+        Sample(double _index, ignition::math::Angle _angle)
           : index(_index), angle(_angle)
         {
         }
 
-        int index{0};
+        double index{0.};
         ignition::math::Angle angle{0.0};
       };
       std::vector<Sample> horizontal_samples;
@@ -125,7 +125,7 @@ namespace gazebo
     /// \brief the intensity beneath which points will be filtered
     private: double min_intensity_;
 
-    /// \brief the ray casting pattern for this sensor.
+    /// \brief the expected ray casting pattern for this laser.
     private: ScanPattern scan_pattern_;
 
     /// \brief Minimum range to publish
