@@ -9,7 +9,7 @@
       <child link="${name}_base_link"/>
     </joint>
 
-    <!-- TODO(hidmic): update physical model, Velodyne Lidar provides mechanical drawings for VLP-32C but no meshes. -->
+    <!-- TODO(hidmic) update physical model, Velodyne Lidar provides mechanical drawings for VLP-32C but no meshes. -->
     <link name="${name}_base_link">
       <inertial>
         <mass value="0.83"/>
