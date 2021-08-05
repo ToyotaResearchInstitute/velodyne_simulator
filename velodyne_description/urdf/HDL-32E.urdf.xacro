@@ -19,7 +19,7 @@
       </inertial>
       <visual>
         <geometry>
-          <mesh filename="package://velodyne_description/meshes/HDL32E_base.dae" />
+          <mesh filename="file://$(find velodyne_description)/meshes/HDL32E_base.dae" />
         </geometry>
       </visual>
       <collision>
@@ -45,7 +45,7 @@
       <visual>
         <origin xyz="0 0 -0.09081" rpy="0 0 0" />
         <geometry>
-          <mesh filename="package://velodyne_description/meshes/HDL32E_scan.dae" />
+          <mesh filename="file://$(find velodyne_description)/meshes/HDL32E_scan.dae" />
         </geometry>
       </visual>
     </link>
