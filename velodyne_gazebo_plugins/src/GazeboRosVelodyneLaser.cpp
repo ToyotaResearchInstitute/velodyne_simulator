@@ -246,6 +246,13 @@ void GazeboRosVelodyneLaser::Load(sensors::SensorPtr _parent, sdf::ElementPtr _s
     frame_name_ = _sdf->GetElement("frameName")->Get<std::string>();
   }
 
+  if (!_sdf->HasElement("organize_cloud")) {
+     RCLCPP_INFO(ros_node_->get_logger(), "Velodyne laser plugin missing <organize_cloud>, defaults to false");
+     organize_cloud_ = false;
+   } else {
+     organize_cloud_ = _sdf->GetElement("organize_cloud")->Get<bool>();
+   }
+
   if (!_sdf->HasElement("min_range")) {
     RCLCPP_INFO(ros_node_->get_logger(), "Velodyne laser plugin missing <min_range>, defaults to 0");
     min_range_ = 0;
@@ -302,6 +309,8 @@ void GazeboRosVelodyneLaser::OnScan(ConstLaserScanStampedPtr& _msg)
   const double minRange = _msg->scan().range_min();
 
   const int rangeCount = _msg->scan().count();
+  // const int verticalRangeCount = _msg->scan().vertical_count();
+  const int verticalRangeCount = scan_pattern_.vertical_samples.size();
 
   const double MIN_RANGE = std::max(min_range_, minRange);
   const double MAX_RANGE = std::min(max_range_, maxRange);
@@ -410,7 +419,9 @@ void GazeboRosVelodyneLaser::OnScan(ConstLaserScanStampedPtr& _msg)
       // Ignore points that lay outside range bands or optionally, beneath a
       // minimum intensity level.
       if ((MIN_RANGE >= range) || (range >= MAX_RANGE) || (intensity < MIN_INTENSITY)) {
-        continue;
+        if (!organize_cloud_) {
+          continue;
+        }
       }
 
       // Noise
@@ -430,19 +441,32 @@ void GazeboRosVelodyneLaser::OnScan(ConstLaserScanStampedPtr& _msg)
         *((float*)(ptr + 16)) = intensity;
         *((uint16_t*)(ptr + 20)) = j; // ring
         ptr += POINT_STEP;
-      }
+      }else if (organize_cloud_) {
+         *((float*)(ptr + 0)) = nanf(""); // x
+         *((float*)(ptr + 4)) = nanf(""); // y
+         *((float*)(ptr + 8)) = nanf(""); // z
+         *((float*)(ptr + 12)) = nanf(""); // intensity
+         *((uint16_t*)(ptr + 16)) = j; // ring
+         ptr += POINT_STEP;
+       }
     }
     j += 1;
   }
 
-  // Populate message with number of valid points
-  msg.point_step = POINT_STEP;
-  msg.row_step = ptr - msg.data.data();
-  msg.height = 1;
-  msg.width = msg.row_step / POINT_STEP;
-  msg.is_bigendian = false;
-  msg.is_dense = true;
-  msg.data.resize(msg.row_step); // Shrink to actual size
+   msg.data.resize(ptr - msg.data.data()); // Shrink to actual size
+   msg.point_step = POINT_STEP;
+   msg.is_bigendian = false;
+   if (organize_cloud_) {
+     msg.width = verticalRangeCount;
+     msg.height = msg.data.size() / POINT_STEP / msg.width;
+     msg.row_step = POINT_STEP * msg.width;
+     msg.is_dense = false;
+   } else {
+     msg.width = msg.data.size() / POINT_STEP;
+     msg.height = 1;
+     msg.row_step = msg.data.size();
+     msg.is_dense = true;
+   }
 
   // Publish output
   pub_->publish(msg);
