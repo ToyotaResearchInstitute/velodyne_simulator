@@ -445,8 +445,8 @@ void GazeboRosVelodyneLaser::OnScan(ConstLaserScanStampedPtr& _msg)
          *((float*)(ptr + 0)) = nanf(""); // x
          *((float*)(ptr + 4)) = nanf(""); // y
          *((float*)(ptr + 8)) = nanf(""); // z
-         *((float*)(ptr + 12)) = nanf(""); // intensity
-         *((uint16_t*)(ptr + 16)) = j; // ring
+         *((float*)(ptr + 16)) = nanf(""); // intensity
+         *((uint16_t*)(ptr + 20)) = j; // ring
          ptr += POINT_STEP;
        }
     }
